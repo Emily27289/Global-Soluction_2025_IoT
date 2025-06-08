@@ -1,0 +1,186 @@
+[
+    {
+        "id": "c2e10d48a9ea5442",
+        "type": "tab",
+        "label": "Fluxo 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "inject1",
+        "type": "inject",
+        "z": "c2e10d48a9ea5442",
+        "name": "Simular Dados",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"temperatura\": 32.5, \"umidade\": 38, \"luminosidade\": 25}",
+        "payloadType": "json",
+        "x": 820,
+        "y": 100,
+        "wires": [
+            [
+                "json1"
+            ]
+        ]
+    },
+    {
+        "id": "json1",
+        "type": "json",
+        "z": "c2e10d48a9ea5442",
+        "name": "Converter JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 1010,
+        "y": 100,
+        "wires": [
+            [
+                "gaugeTemp",
+                "gaugeUmid",
+                "chartLuz",
+                "analise",
+                "debug"
+            ]
+        ]
+    },
+    {
+        "id": "gaugeTemp",
+        "type": "ui_gauge",
+        "z": "c2e10d48a9ea5442",
+        "name": "Temperatura",
+        "group": "grupo1",
+        "order": 1,
+        "width": 6,
+        "height": 3,
+        "gtype": "gage",
+        "title": "Temperatura (°C)",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 50,
+        "x": 1240,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "gaugeUmid",
+        "type": "ui_gauge",
+        "z": "c2e10d48a9ea5442",
+        "name": "Umidade",
+        "group": "grupo1",
+        "order": 2,
+        "width": 6,
+        "height": 3,
+        "gtype": "gage",
+        "title": "Umidade (%)",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 100,
+        "x": 1230,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "chartLuz",
+        "type": "ui_chart",
+        "z": "c2e10d48a9ea5442",
+        "name": "Luminosidade",
+        "group": "grupo1",
+        "order": 3,
+        "width": 6,
+        "height": 4,
+        "label": "Luminosidade (%)",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "ymin": "0",
+        "ymax": "100",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "outputs": 1,
+        "x": 1240,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "analise",
+        "type": "function",
+        "z": "c2e10d48a9ea5442",
+        "name": "Verificar alertas",
+        "func": "let t = msg.payload.temperatura;\nlet u = msg.payload.umidade;\nlet l = msg.payload.luminosidade;\n\nlet alertas = [];\nif (t > 30) alertas.push(\"⚠️ Temp. alta\");\nif (u < 40) alertas.push(\"⚠️ Umidade baixa\");\nif (l < 40) alertas.push(\"💡 Pouca luz\");\n\nmsg.payload = alertas.length > 0 ? alertas.join(\" | \") : \"✔️ Condições normais\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1240,
+        "y": 220,
+        "wires": [
+            [
+                "alerta"
+            ]
+        ]
+    },
+    {
+        "id": "alerta",
+        "type": "ui_text",
+        "z": "c2e10d48a9ea5442",
+        "group": "grupo1",
+        "order": 4,
+        "width": 6,
+        "height": 1,
+        "name": "Alerta",
+        "label": "Status",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 1430,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "debug",
+        "type": "debug",
+        "z": "c2e10d48a9ea5442",
+        "name": "Ver JSON recebido",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1240,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "grupo1",
+        "type": "ui_group",
+        "name": "Painel",
+        "tab": "tab1",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "tab1",
+        "type": "ui_tab",
+        "name": "ThermoCare",
+        "icon": "dashboard",
+        "order": 1
+    }
+]
