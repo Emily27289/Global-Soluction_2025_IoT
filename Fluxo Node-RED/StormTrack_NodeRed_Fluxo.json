@@ -1,6 +1,6 @@
 [
     {
-        "id": "c2e10d48a9ea5442",
+        "id": "ae1559d16dd0ec9b",
         "type": "tab",
         "label": "Fluxo 1",
         "disabled": false,
@@ -8,13 +8,17 @@
         "env": []
     },
     {
-        "id": "inject1",
+        "id": "a885c9b637ee7ed3",
         "type": "inject",
-        "z": "c2e10d48a9ea5442",
-        "name": "Simular Dados",
+        "z": "ae1559d16dd0ec9b",
+        "name": "Simulador JSON",
         "props": [
             {
                 "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
             }
         ],
         "repeat": "",
@@ -24,163 +28,217 @@
         "topic": "",
         "payload": "{\"temperatura\": 32.5, \"umidade\": 38, \"luminosidade\": 25}",
         "payloadType": "json",
-        "x": 820,
-        "y": 100,
+        "x": 1360,
+        "y": 80,
         "wires": [
             [
-                "json1"
+                "d55f5699fbd745b0"
             ]
         ]
     },
     {
-        "id": "json1",
+        "id": "d55f5699fbd745b0",
+        "type": "http in",
+        "z": "ae1559d16dd0ec9b",
+        "name": "Entrada StormTrack",
+        "url": "/stormtrack/entrada",
+        "method": "post",
+        "swaggerDoc": "",
+        "x": 1360,
+        "y": 120,
+        "wires": [
+            [
+                "640efd27b6e3af84"
+            ]
+        ]
+    },
+    {
+        "id": "640efd27b6e3af84",
         "type": "json",
-        "z": "c2e10d48a9ea5442",
-        "name": "Converter JSON",
+        "z": "ae1559d16dd0ec9b",
+        "name": "",
         "property": "payload",
         "action": "",
         "pretty": false,
-        "x": 1010,
-        "y": 100,
+        "x": 1550,
+        "y": 120,
         "wires": [
             [
-                "gaugeTemp",
-                "gaugeUmid",
-                "chartLuz",
-                "analise",
-                "debug"
+                "04fef7452768eaca"
             ]
         ]
     },
     {
-        "id": "gaugeTemp",
+        "id": "04fef7452768eaca",
+        "type": "function",
+        "z": "ae1559d16dd0ec9b",
+        "name": "Análise Ambiental StormTrack",
+        "func": "\nlet temperatura = msg.payload.temperatura;\nlet umidade = msg.payload.umidade;\nlet luminosidade = msg.payload.luminosidade;\n\nmsg.temp = temperatura;\nmsg.umid = umidade;\nmsg.luz = luminosidade;\n\nlet alerta = \"\";\n\nif (temperatura > 30 && umidade < 40) {\n    alerta = \"⚠️ Calor extremo detectado!\";\n}\nif (luminosidade < 40) {\n    alerta += \" 💡 Baixa luminosidade!\";\n}\n\nmsg.alerta = alerta || \"✔️ Condições normais\";\n\nreturn [msg];\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 1780,
+        "y": 120,
+        "wires": [
+            [
+                "b6362e99938e8b4a",
+                "e77180274b64b17a",
+                "1794079b53c5e846",
+                "c99fab79aa92049b",
+                "4c638a6b7e002738",
+                "11991fbf90110d8c"
+            ]
+        ]
+    },
+    {
+        "id": "b6362e99938e8b4a",
         "type": "ui_gauge",
-        "z": "c2e10d48a9ea5442",
+        "z": "ae1559d16dd0ec9b",
         "name": "Temperatura",
-        "group": "grupo1",
+        "group": "3ec6becf85704147",
         "order": 1,
         "width": 6,
         "height": 3,
         "gtype": "gage",
-        "title": "Temperatura (°C)",
+        "title": "🌡️ Temperatura (°C)",
         "label": "°C",
-        "format": "{{value}}",
+        "format": "{{temp}}",
         "min": 0,
         "max": 50,
-        "x": 1240,
-        "y": 40,
+        "colors": [
+            "#00bcd4",
+            "#ffc107",
+            "#f44336"
+        ],
+        "seg1": 25,
+        "seg2": 35,
+        "x": 2010,
+        "y": 80,
         "wires": []
     },
     {
-        "id": "gaugeUmid",
+        "id": "e77180274b64b17a",
         "type": "ui_gauge",
-        "z": "c2e10d48a9ea5442",
+        "z": "ae1559d16dd0ec9b",
         "name": "Umidade",
-        "group": "grupo1",
+        "group": "3ec6becf85704147",
         "order": 2,
         "width": 6,
         "height": 3,
         "gtype": "gage",
-        "title": "Umidade (%)",
+        "title": "💧 Umidade (%)",
         "label": "%",
-        "format": "{{value}}",
+        "format": "{{umid}}",
         "min": 0,
         "max": 100,
-        "x": 1230,
-        "y": 100,
+        "colors": [
+            "#f44336",
+            "#ffc107",
+            "#4caf50"
+        ],
+        "seg1": 30,
+        "seg2": 60,
+        "x": 2010,
+        "y": 140,
         "wires": []
     },
     {
-        "id": "chartLuz",
+        "id": "1794079b53c5e846",
         "type": "ui_chart",
-        "z": "c2e10d48a9ea5442",
-        "name": "Luminosidade",
-        "group": "grupo1",
+        "z": "ae1559d16dd0ec9b",
+        "name": "Histórico de Luz",
+        "group": "3ec6becf85704147",
         "order": 3,
-        "width": 6,
+        "width": 12,
         "height": 4,
-        "label": "Luminosidade (%)",
+        "label": "🔆 Histórico de Luminosidade (%)",
         "chartType": "line",
         "legend": "false",
         "xformat": "HH:mm:ss",
         "interpolate": "linear",
-        "nodata": "",
-        "ymin": "0",
-        "ymax": "100",
-        "removeOlder": 1,
+        "nodata": "Aguardando dados...",
+        "dot": false,
+        "ymin": 0,
+        "ymax": 100,
+        "removeOlder": "10",
         "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#ff9800"
+        ],
         "outputs": 1,
-        "x": 1240,
-        "y": 160,
+        "x": 2010,
+        "y": 200,
         "wires": [
             []
         ]
     },
     {
-        "id": "analise",
-        "type": "function",
-        "z": "c2e10d48a9ea5442",
-        "name": "Verificar alertas",
-        "func": "let t = msg.payload.temperatura;\nlet u = msg.payload.umidade;\nlet l = msg.payload.luminosidade;\n\nlet alertas = [];\nif (t > 30) alertas.push(\"⚠️ Temp. alta\");\nif (u < 40) alertas.push(\"⚠️ Umidade baixa\");\nif (l < 40) alertas.push(\"💡 Pouca luz\");\n\nmsg.payload = alertas.length > 0 ? alertas.join(\" | \") : \"✔️ Condições normais\";\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 1240,
-        "y": 220,
-        "wires": [
-            [
-                "alerta"
-            ]
-        ]
-    },
-    {
-        "id": "alerta",
+        "id": "c99fab79aa92049b",
         "type": "ui_text",
-        "z": "c2e10d48a9ea5442",
-        "group": "grupo1",
+        "z": "ae1559d16dd0ec9b",
+        "group": "3ec6becf85704147",
         "order": 4,
-        "width": 6,
+        "width": 12,
         "height": 1,
-        "name": "Alerta",
-        "label": "Status",
-        "format": "{{msg.payload}}",
+        "name": "Alerta Ambiental",
+        "label": "🚨 Alerta",
+        "format": "{{alerta}}",
         "layout": "row-spread",
-        "x": 1430,
-        "y": 220,
+        "x": 2010,
+        "y": 260,
         "wires": []
     },
     {
-        "id": "debug",
+        "id": "4c638a6b7e002738",
         "type": "debug",
-        "z": "c2e10d48a9ea5442",
-        "name": "Ver JSON recebido",
+        "z": "ae1559d16dd0ec9b",
+        "name": "Debug JSON",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 2010,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "11991fbf90110d8c",
+        "type": "debug",
+        "z": "ae1559d16dd0ec9b",
+        "name": "Debug Final",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "payload",
         "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1240,
-        "y": 280,
+        "x": 2010,
+        "y": 380,
         "wires": []
     },
     {
-        "id": "grupo1",
+        "id": "3ec6becf85704147",
         "type": "ui_group",
-        "name": "Painel",
-        "tab": "tab1",
+        "name": "Painel StormTrack",
+        "tab": "c0e2f39a81eee2d8",
         "order": 1,
         "disp": true,
-        "width": "6",
+        "width": 12,
         "collapse": false
     },
     {
-        "id": "tab1",
+        "id": "c0e2f39a81eee2d8",
         "type": "ui_tab",
-        "name": "ThermoCare",
+        "name": "StormTrack Dashboard",
         "icon": "dashboard",
-        "order": 1
+        "order": 1,
+        "disabled": false,
+        "hidden": false
     }
 ]
